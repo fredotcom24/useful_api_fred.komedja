@@ -23,5 +23,6 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/links', [ShortLinkController::class, 'index']);
     Route::post('/shorten', [ShortLinkController::class, 'store']);
+    Route::post('/s/{code}', [ShortLinkController::class, 'increment']);
     Route::delete('/links/{id}', [ShortLinkController::class, 'destroy']);
 });
