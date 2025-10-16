@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('user_modules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users');
-            $table->foreignId('module_id')->references('id')->on('modules');
-            $table->boolean('active');
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('module_id')->references('id')->on('modules')->onDelete('cascade')->onUpdate('cascade');
+            $table->boolean('active')->default(false);
             $table->timestamps();
         });
     }
