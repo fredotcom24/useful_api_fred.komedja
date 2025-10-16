@@ -85,8 +85,20 @@ class ShortLinkController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ShortLink $shortLink)
+    public function destroy(Request $request)
     {
-        //
+       $id = $request->id;
+       $link = ShortLink::where('id', $id);
+
+       if (!$link) {
+            return response()->json([
+            ], 404);
+       }
+
+       $link->delete();
+
+        return response()->json([
+            "message" => "Link deleted successfully"
+        ], 201);
     }
 }
