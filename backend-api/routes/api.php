@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\UserModuleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,6 @@ Route::controller(AuthController::class)->group(function(){
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('/modules', ModuleController::class);
+    Route::post('/modules/{id}/activate', [UserModuleController::class, 'activate']);
+    Route::post('/modules/{id}/deactivate', [UserModuleController::class, 'deactivate']);
 });
