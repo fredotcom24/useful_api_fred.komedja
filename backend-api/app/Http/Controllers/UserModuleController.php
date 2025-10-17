@@ -15,30 +15,44 @@ class UserModuleController extends Controller
      */
     public function activate (Request $request)
     {
-        $user = $request->validate([
-            'user_id' => 'required|exists:users,id'
-        ]);
+        $user = $request->user();
 
-        $module = Module::where('id', $request->id)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User does not exist'
+            ], 401);
+        }
+
+        $module = Module::find($request->id, 'id');
 
         if (!$module) {
             return response()->json([
-                'message' => 'This module does not exit'
+                'message' => 'This module does not exist'
             ], 404);
         }
 
-        $user_module = UserModule::where('user_id', $user['user_id'])
+        $user_module = UserModule::where('user_id', $user->id)
                                 ->where('module_id', $request->id)
-                                ->where('active', true)->first();
+                                ->first();
         
         if ($user_module) {
+            if ($user_module->active) {
+                return response()->json([
+                    'message' => 'THis module is already activated'
+                ], 200);
+            }
+
+            $user_module->update([
+                'active' => true
+            ]);
+
             return response()->json([
-                'message' => 'THis module is already activated'
+                'message' => 'Module activated'
             ], 200);
         }
 
         UserModule::create([
-            'user_id' => $user['user_id'],
+            'user_id' => $user->id,
             'module_id' => $module->id,
             'active' => true,
         ]);
@@ -53,21 +67,30 @@ class UserModuleController extends Controller
      */
     public function deactivate (Request $request)
     {
-        $user = $request->validate([
-            'user_id' => 'required|exists:users,id'
-        ]);
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User does not exist'
+            ]);
+        }
 
         $module = UserModule::where('module_id', $request->id)
-                            ->where('user_id', $user['user_id'])->first();
+                            ->where('user_id', $user->id)->first();
 
         if (!$module) {
             return response()->json([
-                'message' => 'This module does not exit'
+                'message' => 'This module does not exist'
             ], 404);
         }
 
-        $module->active = false;
-        $module->save();
+        if (!$module->active) {
+            return response()->json([
+                'message' => 'THis module is already deactivated'
+            ]);
+        }
+
+        $module->update(['active' => false]);
 
         return response()->json([
             'message' => 'Module deactivated',
