@@ -19,6 +19,7 @@
 <script setup>
 import { AuthStore } from '@/stores/authStore';
 import { ref } from 'vue';
+import router from '@/router';
 
 const authStore = AuthStore();
 const email = ref('')
@@ -33,6 +34,7 @@ const handleLogin = async () => {
 
     try {
         await authStore.login(data)
+        router.push('/modules')
     } catch (error) {
         console.error('Error login', error);   
     }
