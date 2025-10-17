@@ -44,5 +44,7 @@ export const AuthStore = defineStore ('auth', {
                 console.error('Error:', error)
             }
         },
-    }
+    },
+
+    persist: true
 })
