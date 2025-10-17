@@ -23,6 +23,24 @@ export const ModuleStore = defineStore ('modules', {
                 console.error('Error:', error)
             }
         },
+
+        async activateModule(id){
+            try{
+                const response = await ModuleModel.activate(id)
+                console.log(response.data)
+            }catch (error){
+                console.error('Error:', error)
+            }
+        },
+
+        async deactivateModule(id){
+            try{
+                const response = await ModuleModel.deactivate(id)
+                console.log(response.data)
+            }catch (error){
+                console.error('Error:', error)
+            }
+        },
     },
 
     persist: true
