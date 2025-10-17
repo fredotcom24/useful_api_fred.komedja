@@ -17,9 +17,7 @@ class ModuleController extends Controller
     {
         $data = DB::table('modules')->get(['id', 'name', 'description']);
 
-        return response()->json([
-            $data
-        ], 200);
+        return response()->json($data, 200);
     }
 
     /**
