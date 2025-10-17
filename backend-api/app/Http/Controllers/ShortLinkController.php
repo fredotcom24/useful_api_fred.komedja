@@ -15,8 +15,9 @@ class ShortLinkController extends Controller
      */
     public function index(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $links = ShortLink::where('user_id', $user_id)->get(['id', 'original_url', 'code', 'clicks']);
+        $user = $request->user();
+
+        $links = ShortLink::where('user_id', $user->id)->get(['id', 'original_url', 'code', 'clicks', 'created_at']);
 
         if (!$links) {
             return response()->json([
@@ -34,22 +35,27 @@ class ShortLinkController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
+
         $data = $request->validate([
             'original_url' => 'required|string|url:http,https',
             'custom_code' => 'string|max:10|unique:short_links'
         ]);
-
-        $user_id = Auth::user()->id;
 
         function getRandomCode($n)
         {
             return bin2hex(random_bytes($n / 2));
         }
 
+        if ($request->custom_code) {
+            $code = $request->custom_code;
+        }
+        else $code = getRandomCode(10);
+
         $link = ShortLink::create([
-            'user_id' => $user_id,
+            'user_id' => $user->id,
             'original_url' => $data['original_url'],
-            'code' => $data['custom_code'] ?? getRandomCode(10),
+            'code' => $code,
             'clicks' => 0,
         ]);
 
@@ -61,9 +67,19 @@ class ShortLinkController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShortLink $shortLink)
+    public function increment (Request $request)
     {
-        //
+        $link = ShortLink::where('code', $request->code)->first();
+
+        if (!$link) {
+            return response()->json([
+                'message' => 'Short link not found'
+            ], 404);
+        }
+
+        $link->increment('clicks');
+
+        return redirect('/original_url', 302);
     }
 
     /**
@@ -92,6 +108,7 @@ class ShortLinkController extends Controller
 
        if (!$link) {
             return response()->json([
+                'message' => 'Short link not found'
             ], 404);
        }
 
